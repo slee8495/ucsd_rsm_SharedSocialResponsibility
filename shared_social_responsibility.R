@@ -3,7 +3,7 @@ library(readxl)
 
 # load csv files
 sales <- read_csv("Sales.csv")
-nyop <- read_csv("NYOP.csv")
+
 
 sales
 nyop
@@ -116,4 +116,60 @@ list(z_stat_nyop = z_stat_nyop, p_value_nyop = p_value_nyop, significant_nyop = 
 # In the context of this experiment, it means there's a statistically significant difference between the proportions of purchases 
 # in the "NYOP" and "NYOP Charity" conditions. Essentially, the addition of charity in the pricing model has a significant impact on 
 # purchase behavior.
+
+
+
+
+# a. Load “NYOP.csv”. Create a variable called UnitPrice which takes the variable, Price, 
+# and divides it by Number. After doing so, next change the type of the variable, Number, to a factor variable.
+
+nyop <- read_csv("NYOP.csv")
+nyop %>%
+  dplyr::mutate(UnitPrice = Price / Number) %>%
+  dplyr::mutate(Number = as.factor(Number)) -> nyop
+  
+  
+# b. Visualize both Price and UnitPrice against the factor variable, Number by creating box plots and interpreting them.
+
+# Boxplot for Price against Number
+nyop %>% 
+  ggplot2::ggplot(aes(x = as.factor(Number), y = Price, fill = as.factor(Number))) +
+  ggplot2::geom_boxplot() +
+  ggplot2::labs(title = "Boxplot of Price against Number",
+                x = "Number",
+                y = "Price") +
+  ggplot2::theme_minimal() +
+  ggplot2::theme(legend.position="none")
+
+# Boxplot for UnitPrice against Number
+nyop %>% 
+  ggplot2::ggplot(aes(x = Number, y = UnitPrice, fill = as.factor(Number))) +
+  ggplot2::geom_boxplot() +
+  ggplot2::labs(title = "Boxplot of UnitPrice against Number",
+                x = "Number",
+                y = "Price") +
+  ggplot2::theme_minimal() +
+  ggplot2::theme(legend.position="none")
+
+
+
+# c. Determine the average unit purchase price for both the NYOP and the NYOP Charity conditions. 
+# Does the difference seem small or substantial? Formulate a statistical test to determine if these two average unit prices are different.
+
+# Calculate the average unit purchase price
+nyop %>% 
+  dplyr::group_by(Condition) %>% 
+  dplyr::summarize(avg_unit_price = mean(UnitPrice, na.rm = TRUE)) -> avg_unit_price
+
+
+
+# Load the pyrsm library
+library(pyrsm)
+
+# Assuming you have two vectors nyop_prices and nyop_charity_prices
+# You can use compare_means function to perform the test
+result <- pyrsm::compare_means(nyop_prices ~ nyop_charity_prices, data = your_data_frame)
+
+# Print the results
+print(result)
 
